@@ -71,12 +71,12 @@
 
   <!-- Pygments Highlight CSS -->
   
-<link rel="stylesheet" href="../../css/highlight.css">
-<link rel="stylesheet" href="../../css/widget.css">
-<link rel="stylesheet" href="../../css/rocket.css">
-<link rel="stylesheet" href="../../css/signature.css">
-<link rel="stylesheet" href="../../css/catalog.css">
-<link rel="stylesheet" href="../../css/livemylife.css">
+<link rel="stylesheet" href="../../../../css/highlight.css">
+<link rel="stylesheet" href="../../../../css/widget.css">
+<link rel="stylesheet" href="../../../../css/rocket.css">
+<link rel="stylesheet" href="../../../../css/signature.css">
+<link rel="stylesheet" href="../../../../css/catalog.css">
+<link rel="stylesheet" href="../../../../css/livemylife.css">
 
 
   
@@ -138,10 +138,10 @@
   <!--[if lt IE 9]> <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script> <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script> <![endif]-->
 
   <!-- ga & ba script hoook -->
-  <link rel="canonical" href="http://yoursite-url/categories/Hexo-Theme-LiveMyLife/">
+  <link rel="canonical" href="http://yoursite-url/2020/12/30/aft一致性算法/">
   <title>
     
-    either thin | or die
+    Raft一致性算法 - either thin | or die
     
   </title>
 <meta name="generator" content="Hexo 4.2.1"></head>
@@ -210,14 +210,14 @@
 
           
           <li>
-            <a href="/archive/">Archives</a>
+            <a href="/about/">About</a>
           </li>
           
           
 
           
           <li>
-            <a href="/about/">About</a>
+            <a href="/archive/">Archives</a>
           </li>
           
           
@@ -275,8 +275,8 @@
 
   <style type="text/css">
     header.intro-header {
-       /*page*/
-        background-image: url('/img/header_img/archive_bg2.jpg');
+       /*post*/
+        background-image: url('/img/header_img/lml_bg.jpg');
       
     }
 
@@ -298,10 +298,42 @@
       <div class="row">
         <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
           
-          <div class="site-heading">
-            <h1>Live My Life</h1>
-            <!--<hr class="small">-->
-            <span class="subheading">心有猛虎，细嗅蔷薇</span>
+          <div class="post-heading">
+            <div class="tags">
+              
+              <a class="tag" href="/tags/#Raft" title="Raft">Raft</a>
+              
+              <a class="tag" href="/tags/#一致性算法" title="一致性算法">一致性算法</a>
+              
+            </div>
+            <h1>Raft一致性算法</h1>
+            <h2 class="subheading"></h2>
+            <span class="meta">
+              Posted by 林亨辉 on
+              2020-12-30
+            </span>
+
+
+            
+            <!-- WordCount start -->
+            <div class="blank_box"></div>
+            <span class="meta">
+              Estimated Reading Time <span class="post-count">5</span> Minutes
+            </span>
+            <div class="blank_box"></div>
+            <span class="meta">
+              Words <span class="post-count">1.7k</span> In Total
+            </span>
+            <div class="blank_box"></div>
+            <!-- 不蒜子统计 start -->
+            <span class="meta">
+              Viewed <span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span> Times
+            </span>
+            <!-- 不蒜子统计 end -->
+            <!-- WordCount end -->
+            
+
+
           </div>
           
         </div>
@@ -342,294 +374,289 @@
 	Friends Blog、
 	anchorjs、
 	) -->
-	<!-- Main Content -->
-<div class="container">
-  <div class="row">
-    
+	<!-- Modify by Yu-Hsuan Yen -->
+<!-- Post Content -->
+<article>
+  <div class="container">
+    <div class="row">
+      <!-- Post Container -->
+      <div class="col-lg-8 col-lg-offset-1 col-md-10 col-md-offset-1 post-container">
 
-    <!-- USE SIDEBAR -->
-    <!-- Post Container -->
-    <div class="
-                col-lg-8 col-lg-offset-1
-                col-md-8 col-md-offset-1
-                col-sm-12
-                col-xs-12
-                post-container
-            ">
+        <p><a href="https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md" target="_blank" rel="noopener">Raft一致性算法论文中文译文链接</a></p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>一致性算法是从复制状态机的背景下提出的，一组服务器上的状态机产生相同状态的副本，并且在一些机器宕掉情况下也可以继续运行，正确的对外提供服务。Raft是一种为了管理复制日志的一致性算法，使得一组机器像一个整体一样工作。 </p>
+<p>Raft需要从一群节点中选择一个领导人，其他节点变为该领导节点的跟随者，客户端只能向领导人发送日志条目，然后由领导人按顺序同步日志条目给跟随者（日志复制）</p>
+<h2 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h2><h3 id="选举"><a href="#选举" class="headerlink" title="选举"></a>选举</h3><p>Raft有三种角色，分别是领导人、跟随者、候选人，节点只能是这三种角色其中之一。<br>Term：代表任期，每个任期都是由选举开始，在选举成功后，领导人会管理整个集群直到任期结束，如果选举失败，则这个任期会没有领导人而结束。</p>
+<p>节点会随时在这三种角色之间切换，为了保证三种角色之间顺利协作，引入任期概念。<br><img src="/img/post/raft/raft1.png" alt="raft1"></p>
+<p>初始： A B C三个节点<br>由于没有领导者和历史任期，跟随者转换自己成为候选人，在向其他节点发送请求投票前都把自己任期设置为1，并向其他跟随者发送请求投票</p>
+<p>  Term 1：<br>由于A B C节点同时转换自己为候选人，A获取B的选票，B获取C的选票，C获取A的选票，造成选票被平分，ABC任意候选人都不能满足获取2/n+1的选票，所以需要重新选举，由于这一任期的选票无效，各个节点需要设重置自己为谁投票votedFor为空，但如何通知他们的投票无效，需要重置呢。候选人在竞选失败时如果发送网络请求给投票节点，那可能会因节点异常、网络异常引起通知失败引来其他问题，所以更好的做法是由节点在获取到更大任期的请求投票时，再重置投票，并把转变自己为候选人。</p>
+<p>针对因同时转为候选人而不能获得大部分选票问题，Raft引入了随机计时器概念，候选人在开始请求投票前，会由随机计时器设定一个随机时间（150~300毫秒），只有到达该时间才可以发起请求投票，通过随机时间避免上面问题</p>
+<pre><code> A ，100ms后开始再次请求投票
+ B ， 30ms后开始再次请求投票
+ C， 130ms后开始再次请求投票
 
-      
-<!-- Main Content -->
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-lg-offset-1 col-md-10 col-md-offset-1">
-      <!-- 归档列表 -->
-
-      
-
-      <!-- 归档列表 -->
-
-      
-      <div class="one-tag-list">
-        <span class="fa fa-calendar-times-o listing-seperator" id="2020">
-          <span class="tag-text">2020</span>
-        </span>
-        <ul>
-          
-          <!-- <li class="listing-item">
-                  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-                  <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-                  </li> -->
-          <li>
-            12-08
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2020/12/08/leger源码分析/" style="color: #0085a1">
-              <span>
-                Dleger源码分析
-              </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-          </li>
-          
-          <!-- <li class="listing-item">
-                  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-                  <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-                  </li> -->
-          <li>
-            12-08
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2020/12/08/hello-world/" style="color: #0085a1">
-              <span>
-                Hello World
-              </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-          </li>
-          
-          <!-- <li class="listing-item">
-                  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-                  <a href="{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-                  </li> -->
-          <li>
-            04-17
-            <i class="fa fa-angle-double-right" aria-hidden="true"></i>
-            <a href="/2020/04/17/Hexo-Theme-LiveMyLife/" style="color: #0085a1">
-              <span>
-                Hexo-Theme-LiveMyLife
-              </span>
-            </a>
-            <!-- <p class="post-meta">{{ post.date | date:"%Y-%m-%d" }}</p> -->
-          </li>
-          
-        </ul>
-      </div>
-      
-
-
-    </div>
-  </div>
-</div>
-
-
-      <!-- 如果开启评论功能 -->
-      
-    </div>
-
-    <!-- Sidebar Container -->
-<div class="
-    col-lg-3 col-lg-offset-0
-    col-md-3 col-md-offset-0
-    col-sm-12
-    col-xs-12
-    sidebar-container
-">
-    
-        
-<!-- <h5>VISITORS</h5> -->
-<h5><a href="/">VISITORS</a></h5>
-<div class="widget">
-  <span>
-    Viewed <b><i><span id="busuanzi_value_site_pv"><i class="fa fa-spinner fa-spin"></i></span></i></b> Times
-  </span>
-  <br />
-  <span>
-    <b><i><span id="busuanzi_value_site_uv"><i class="fa fa-spinner fa-spin"></i></span></i></b> Visitors In Total
-  </span>
-</div>
-
-
-        <hr>
-    
-        <!-- Featured Tags -->
-
-<section>
-  <!-- no hr -->
-  <h5><a href="/tags/">FEATURED TAGS</a></h5>
-  <div class="tags">
-    
-    
-    <a href="/tags/#Hexo" title="Hexo" rel="1">Hexo</a>
-    
-    
-    
-    <a href="/tags/#Hexo-Theme-LiveMyLife" title="Hexo-Theme-LiveMyLife" rel="1">Hexo-Theme-LiveMyLife</a>
-    
-    
-  </div>
-</section>
-
-
-        <hr>
-    
-        <!-- Short About -->
-<section class="visible-md visible-lg">
-  <h5><a href="/about/">ABOUT ME</a></h5>
-  <div class="short-about">
-
-    
-    <img id="avatar_pic" src="/img/avatar/fatpeople.jpg" alt="avatar_pic" style="box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, .5);
-    -moz-box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, .5);
-    -webkit-box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, .5);" />
-    
-
-    
-    <p>Fat people have no future, either thin or die...</p>
-    
-
-    <!-- SNS Link -->
-    <ul class="list-inline">
-      
-
-      
-      <li>
-        <a target="_blank" href="https://github.com/V-Vincen">
-          <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-          </span>
-        </a>
-      </li>
-      
-
-      
-      <li>
-        <a target="_blank" href="https://twitter.com/V_Vincen_">
-          <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-          </span>
-        </a>
-      </li>
-      
-
-      
-      <li>
-        <a target="_blank" href="https://www.instagram.com/v_vincen_">
-          <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
-          </span>
-        </a>
-      </li>
-      
-
-      
-
-      
-
-      
-
-      
-      <li>
-        <a target="_blank" href="http://weibo.com/WVincen">
-          <span class="fa-stack fa-lg">
-            <i class="fa fa-circle fa-stack-2x"></i>
-            <i class="fa fa-weibo fa-stack-1x fa-inverse"></i>
-          </span>
-        </a>
-      </li>
-      
-
-    </ul>
-  </div>
-</section>
-
-        <hr>
-    
-        
-<!-- <h5>RECENT POSTS</h5> -->
-<h5><a href="/">RECENT POSTS</a></h5>
-<div class="widget">
-  <ul>
-    
-    <a href="../../2020/12/08/leger%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">
-      <li>Dleger源码分析</li>
-    </a>
-    
-    <a href="../../2020/12/08/hello-world/">
-      <li>Hello World</li>
-    </a>
-    
-    <a href="../../2020/04/17/Hexo-Theme-LiveMyLife/">
-      <li>Hexo-Theme-LiveMyLife</li>
-    </a>
-    
-  </ul>
-</div>
-
-
-        <hr>
-    
-        <!-- Friends Blog -->
-
-<!-- <h5>FRIENDS</h5> -->
-<h5><a href="/">FRIENDS</a></h5>
-<ul class="list-inline">
-  
-  <li><a href="https://v-vincen.life/" target="_blank">V_Vincen</a></li>
-  
-  <li><a href="http://beantech.org" target="_blank">Bean Tech</a></li>
-  
-  <li><a href="http://huangxuan.me" target="_blank">Hux Blog</a></li>
-  
-  <li><a href="https://hexo.io/" target="_blank">Hexo</a></li>
-  
+B先到达开始请求投票，由于A C还没开始请求投票，所以B获取到A C的选票，B转为领导人，向A C发送心跳，告知AC更新他们的领导人为B。心跳的作用时保持节点之间的联系，跟随者可以知道集群的领导者是否正常，不正常的话，跟随者需要转为候选人重新选举</code></pre><p>跟随者是被动的，它不会发送任何请求，只会接收来自领导人或者候选人的请求。候选人则是在不存在领导人情况下，由跟随者转变自己成为候选人。<br>    选举时需要遵守以下规则：<br>   每个服务器最多只能对同一个任期投出一张选票<br>  只能投票给任期比自己大的候选人<br>  投票期间，如果节点收到任期大于等于自己的心跳，则需要转变为跟随者</p>
+<p>如果只是实现选举，上面的规则已经满足，但我们要实现的是一致性的复制状态机，意味着在每个节点上它们所存储的日志是完全一样的内容和顺序。如果A和B的内容不一样，那给它投票还有意义吗？请看下面的日志复制</p>
+<h3 id="日志复制"><a href="#日志复制" class="headerlink" title="日志复制"></a>日志复制</h3><p>领导人选举出来后，它开始为客户端提供服务，客户端对数据的操作至少包括一条被复制状态机执行的指令，领导人必须确保包含自己在内的整个集群节点都有序的追加该条日志条目。</p>
+<pre><code>日志条目的基本数据结构：任期 + 索引 + 数据</code></pre><p><img src="/img/post/raft/raft2.png" alt="raft1"></p>
+<p>为了简化一致性复制设计，Raft设定了一个机制：</p>
+<ul>
+<li>如果不同的节点的中的日志条目拥有相同的索引号和任期号，那么它们存储了相同的指令数据</li>
+<li>如果不同的节点的中的日志条目拥有相同的索引号和任期号，那么它们前面存储的日志条目也全部相同</li>
+<li>领导人不能覆盖或者删除自己的日志</li>
+</ul>
+<p>要满足以上机制，领导人在发送追加日志条目给跟随者时，同时需要携带前一个日志条目的索引号和任期号，跟随者需要校验追加条目的前一个条目的任期号和索引号是否一致，一致才允许追加。每个跟随者的当前复制的条目进度都不一定相同，因此需要对每一个跟随者维护一个nextIndex，nextIndex代表跟随者当前已经同步领导人日志的索引位置，下次在向跟随者同步日志时，从nextIndex开始即可。如果跟随者发现日志条目和领导人不一致时，必须截断或者修正nextIndex，把日志条目调整到和领导人一致。当然，需要记录已经被大多数节点所追加的日志条目的索引位置（commitIndex）</p>
+<p>刚才说到上面选举模块提到的投票规则是有欠缺的，现在需要补充一个规则：</p>
+<ul>
+<li>只能投票给最后一个日志条目的任期号和索引号比自己大的候选人</li>
+</ul>
+<h2 id="集群成员变化"><a href="#集群成员变化" class="headerlink" title="集群成员变化"></a>集群成员变化</h2><p>以上关于一致性复制状态机的描述都是基于在节点数量不变的情况下， 但实际运用中，会经常遇到增减节点。修改增减节点配置时，各个节点对集群成员数量对满足大多数条件的认识不能达成一致，修改配置的节点和还未修改配置的节点会造成两个独立的集群群体。</p>
+<p><img src="/img/post/raft/raft3.png" alt="raft1"></p>
+<p>集群成员变化通常是采用两阶段方法</p>
+<ul>
+<li>先停掉所有节点，更新配置后逐一重启</li>
+<li>把新配置当做日志条目由领导人复制到所有节点，并大多数节点追加后提交（过渡一致），然后再切换为新的配置</li>
 </ul>
 
 
         <hr>
-    
+        <!-- Pager -->
+        <ul class="pager">
+          
+          
+        </ul>
+
         
-    <!-- <h5>ARCHIVES</h5> -->
-    <h5><a href="/archives/">ARCHIVES</a></h5>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="../../archives/2020/12/">十二月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="../../archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li></ul>
-    </div>
+        <!-- tip start -->
+        <div class="tip">
+          <p>
+            If you like this blog or find it useful for you, you are welcome to comment on it. You are also welcome to share this blog, so that more people can participate in it. If the images used in the blog infringe your copyright, please contact the author to delete them. Thank you !
+          </p>
+        </div>
+        <!-- tip end -->
+        
 
+        
+        <!-- Sharing Srtart -->
+        <!-- Social Social Share Post -->
+<!-- Docs:https://github.com/overtrue/share.js -->
 
-        <hr>
-    
-        <!-- Categories -->
-
-<!-- <h5>categories</h5> -->
-<h5><a href="/categories/">CATEGORIES</a></h5>
-<div class="widget">
-  <ul>
-    
-    <a href="/categories/#Hexo-Theme-LiveMyLife">
-      <li>Hexo-Theme-LiveMyLife</li>
-    </a>
-    
+<div class="social-share" data-initialized="true" data-disabled="tencent ,douban ,qzone ,linkedin ,facebook ,google ,diandian" data-wechat-qrcode-helper="" align="center">
+  <ul class="list-inline text-center social-share-ul">
+    <li class="social-share-li">
+      <a target="_blank" class="social-share-icon icon-twitter">
+        <i class="fa fa-twitter fa-1x" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="social-share-li">
+      <a class="social-share-icon icon-wechat">
+        <i class="fa fa-weixin fa-1x" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="social-share-li">
+      <a target="_blank" class="social-share-icon icon-weibo">
+        <i class="fa fa-weibo fa-1x" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="social-share-li">
+      <a target="_blank" class="social-share-icon icon-qq">
+        <i class="fa fa-qq fa-1x" aria-hidden="true"></i>
+      </a>
+    </li>
+    <li class="social-share-li">
+      <a target="_blank" class="social-share-icon" href="mailto:?subject=Raft一致性算法&body=Hi,I found this website and thought you might like it http://yoursite-url/2020/12/30/aft一致性算法/">
+        <i class="fa fa-envelope fa-1x" aria-hidden="true"></i>
+      </a>
+    </li>
   </ul>
 </div>
 
+<!-- css & js -->
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/social-share.js/1.0.16/css/share.min.css"> -->
+<script defer="defer" async="true" src="https://cdnjs.cloudflare.com/ajax/libs/social-share.js/1.0.16/js/social-share.min.js"></script>
 
+        <!-- Sharing End -->
+        
         <hr>
-    
-</div>
+
+        <!-- comments start -->
+        <!-- 1. gitalk comment -->
+
+<!-- gitalk start -->
+<!-- Docs:https://github.com/gitalk/gitalk/blob/master/readme-cn.md -->
+
+<div id="gitalk-container"></div>
+
+<!-- <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.js"></script> -->
+<script src="/js/comment/gitalk.js"></script>
+
+<script>
+  var gitalk = new Gitalk({
+    clientID: '',
+    clientSecret: '',
+    repo: '',
+    owner: '',
+    admin: '',
+    id: 'Wed Dec 30 2020 15:35:00 GMT+0800', // Ensure uniqueness and length less than 50
+    distractionFreeMode: false, // Facebook-like distraction free mode
+    perPage: 10 ,
+    pagerDirection: 'last',
+    createIssueManually: false ,
+    language: 'en'
+  });
+  gitalk.render('gitalk-container');
+
+  var gtFolded = () => {
+    setTimeout(function() {
+      let markdownBody = document.getElementsByClassName("markdown-body");
+      let list = Array.from(markdownBody);
+      list.forEach(item => {
+        if (item.clientHeight > 250) {
+          item.classList.add('gt-comment-body-folded');
+          item.style.maxHeight = '250px';
+          item.title = 'Click to Expand';
+          item.onclick = function() {
+            item.classList.remove('gt-comment-body-folded');
+            item.style.maxHeight = '';
+            item.title = '';
+            item.onclick = null;
+          };
+        }
+      })
+    }, 800);
+  }
+</script>
+
+<!-- gitalk end -->
+
+
+
+<!-- 2. gitment comment -->
+
+
+
+<!-- 3. disqus comment -->
+
+
+        <!-- comments end -->
+        <hr>
+
+      </div>
+
+      <!-- Catalog: Tabe of Content -->
+      <!-- Table of Contents -->
 
     
+      <aside id="sidebar">
+        <div id="toc" class="toc-article">
+        <strong class="toc-title">Contents</strong>
+        
+          <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#介绍"><span class="toc-nav-number">1.</span> <span class="toc-nav-text">介绍</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#模块"><span class="toc-nav-number">2.</span> <span class="toc-nav-text">模块</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#选举"><span class="toc-nav-number">2.1.</span> <span class="toc-nav-text">选举</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#日志复制"><span class="toc-nav-number">2.2.</span> <span class="toc-nav-text">日志复制</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#集群成员变化"><span class="toc-nav-number">3.</span> <span class="toc-nav-text">集群成员变化</span></a></li></ol>
+        
+        </div>
+      </aside>
+    
+
+
+      <!-- Sidebar Container -->
+      <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+        <!-- Featured Tags -->
+        
+        <section>
+          <!-- no hr -->
+          <h5>
+            <a href="/tags/">FEATURED TAGS</a>
+          </h5>
+          <div class="tags">
+            
+            <a class="tag" href="/tags/#Raft" title="Raft">Raft</a>
+            
+            <a class="tag" href="/tags/#一致性算法" title="一致性算法">一致性算法</a>
+            
+          </div>
+        </section>
+        
+
+        <!-- Friends Blog -->
+        
+        <hr>
+        <h5>FRIENDS</h5>
+        <ul class="list-inline">
+
+          
+          <li>
+            <a href="https://v-vincen.life/" target="_blank">V_Vincen</a>
+          </li>
+          
+          <li>
+            <a href="http://beantech.org" target="_blank">Bean Tech</a>
+          </li>
+          
+          <li>
+            <a href="http://huangxuan.me" target="_blank">Hux Blog</a>
+          </li>
+          
+          <li>
+            <a href="https://hexo.io/" target="_blank">Hexo</a>
+          </li>
+          
+        </ul>
+        
+      </div>
+    </div>
   </div>
-</div>
+</article>
+
+
+
+<!-- anchorjs start -->
+<!-- async load function -->
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script type="text/javascript">
+  // async load function
+  function async (u, c) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) {
+      o.addEventListener('load', function(e) {
+        c(null, e);
+      }, false);
+    }
+    s.parentNode.insertBefore(o, s);
+  };
+</script>
+<script type="text/javascript">
+  //anchor-js, Doc:http://bryanbraun.github.io/anchorjs/
+  async ("https://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js", function() {
+    anchors.options = {
+      visible: 'hover',
+      placement: 'left',
+      // icon: 'ℬ'
+      icon: '❡'
+    };
+    anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+  });
+</script>
+<style>
+  /* place left on bigger screen */
+  @media all and (min-width: 800px) {
+    .anchorjs-link {
+      position: absolute;
+      left: -0.75em;
+      font-size: 1.1em;
+      margin-top: -0.1em;
+    }
+  }
+</style>
+
+<!-- anchorjs end -->
+
 
 
 	<!-- Footer (contains ThemeColor、viewer) -->
